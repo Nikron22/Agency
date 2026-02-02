@@ -1,4 +1,4 @@
-CREATE DATABASE kyrswork;
+CREATE DATABASE agency1;
 
 CREATE TABLE Clients (
     client_id SERIAL PRIMARY KEY,
@@ -204,6 +204,68 @@ VALUES
     (1, '123456', '7890', 'Петров', 'Иван', 'Петрович', 'УФМС по г. Москва', '2020-05-15'),
     (2, '234567', '8901', 'Смирнова', 'Анна', 'Дмитриевна', 'УФМС по г. Санкт-Петербург', '2021-03-22');
 
+INSERT INTO Clients (name_client, client_type, phone_number, email)
+VALUES ('Иван123', 'Продавец', '+79261112255', 'ivan123@test.ru');  
+
+INSERT INTO Clients (name_client, client_type, phone_number, email)
+VALUES ('Татьяна', 'Покупатель', '+79261112288', 'tanya@');
+
+INSERT INTO Agents (
+    name_agent, surname_agent, patronymic_agent, work_experience,
+    phone_number_agent, email_agent, password_agent
+)
+VALUES (
+    'Андрей', 'Петров', 'Иванович', 5,
+    '+79262ф23355', 'a.petrov@realtor.com',
+    '$2b$12$KIXzWkXhUeQjJZVnqF1y.eJZVnqF1y.eJZVnqF1y.eJZVnqF1y.eJZVnqF1y.e');
+
+INSERT INTO Requests (
+    client_id, agent_id, price_request, region_request,
+    area_request, rooms_count_request, funds_request
+)
+VALUES (1, 1, -5000000.00, 'Центральный', 70.00, 2, 10500000.00);  
+
+
+INSERT INTO Properties (
+    price_properties, lift_properties, territory_comfort_properties,
+    area_properties, build_year_properties, rooms_count_properties,
+    address_properties, region_properties, legal_aspects_properties,
+    floor_properties, total_floors_properties, owner_id, property_type
+)
+VALUES (
+    15000000.00, 'да', 'Детская площадка', 75.50, 2010, 3,
+    'ул. Пушкина, д. 10', 'Центральный', 'Юридически чист', 4, 12, 1, 'гараж');
+
+INSERT INTO Deals (
+    owner_id, buyer_id, property_id, agent_id,
+    final_price, deal_type, status, deal_date, description
+)
+VALUES (
+    1, 2, 1, 1, 10000000.00, 'обмен', 'завершена', 
+    CURRENT_TIMESTAMP, 'Хорошая квартира'
+); 
+
+INSERT INTO Documents (
+    client_id, passport_series, passport_number,
+    last_name, first_name, middle_name, issued_by, issue_date
+)
+VALUES (
+    4, '123456', '7890', 'Иванов', 'Иван', 'Петрович',
+    'УФМС по г. Москва', '2023-01-15'
+); 
+
+
+INSERT INTO Documents (
+    client_id, passport_series, passport_number,
+    last_name, first_name, middle_name, issued_by, issue_date
+)
+VALUES (
+    5, '456789', '0123', 'Smith', 'Елена', 'Викторовна',
+    'УФМС по г. Краснодар', '2023-02-20'
+); 
+
+ALTER TABLE Properties ADD COLUMN is_available BOOLEAN DEFAULT true;
+
 CREATE OR REPLACE FUNCTION mark_property_as_sold()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -216,7 +278,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_mark_property_as_sold
+CREATE TRIGGER trg_delete_property_after_completed_deal
 AFTER INSERT OR UPDATE ON Deals
 FOR EACH ROW
 EXECUTE FUNCTION mark_property_as_sold();
@@ -226,29 +288,24 @@ CREATE ROLE agent_role;
 CREATE ROLE admin_role;
 CREATE ROLE hr_role;
 
-GRANT SELECT ON Clients TO client_role;
 GRANT INSERT, UPDATE ON Clients TO client_role;
 GRANT SELECT ON Properties TO client_role;
-GRANT SELECT, INSERT, UPDATE ON Requests TO client_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Requests TO client_role;
 GRANT SELECT ON Deals TO client_role;
 GRANT SELECT, INSERT ON Documents TO client_role;
-GRANT SELECT ON Agents TO client_role;
 
 GRANT SELECT, INSERT, UPDATE ON Clients TO agent_role;
 GRANT SELECT, INSERT, UPDATE ON Properties TO agent_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON Requests TO agent_role;
 GRANT SELECT, INSERT, UPDATE ON Deals TO agent_role;
-GRANT SELECT, UPDATE ON Agents TO agent_role;
+GRANT SELECT ON Agents TO agent_role;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON Clients TO admin_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON Properties TO admin_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Requests TO admin_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON Deals TO admin_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON Documents TO admin_role;
 GRANT SELECT ON Agents TO admin_role;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON Clients TO hr_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Documents TO hr_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON Agents TO hr_role;
 
 ALTER TABLE Clients ENABLE ROW LEVEL SECURITY;
@@ -279,11 +336,13 @@ CREATE USER agent_user WITH PASSWORD 'agent123';
 CREATE USER admin_user WITH PASSWORD 'admin123';
 CREATE USER hr_user WITH PASSWORD 'hr123';
 
+
 GRANT client_role TO client_user;
 GRANT agent_role TO agent_user;
 GRANT admin_role TO admin_user;
 GRANT hr_role TO hr_user;
 
-GRANT CONNECT ON DATABASE kyrswork TO client_user, agent_user, admin_user, hr_user;
+
+GRANT CONNECT ON DATABASE agency1 TO client_user, agent_user, admin_user, hr_user;
 GRANT USAGE ON SCHEMA public TO client_user, agent_user, admin_user, hr_user;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO client_user, agent_user, admin_user, hr_user;
