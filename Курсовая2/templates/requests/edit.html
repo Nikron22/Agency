@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование запроса{% endblock %}
+{% block header %}Редактирование запроса #{{ request[0] }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Редактирование запроса</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_request', request_id=request[0]) }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="price_request" class="form-label">Максимальная цена (руб) *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="price_request" 
+                                       name="price_request" step="0.01" min="0" required 
+                                       value="{{ request[3] }}">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="region_request" class="form-label">Район поиска *</label>
+                            <input type="text" class="form-control" id="region_request" 
+                                   name="region_request" required value="{{ request[4] }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="area_request" class="form-label">Площадь (м²) *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="area_request" 
+                                       name="area_request" step="0.01" min="0" required 
+                                       value="{{ request[5] }}">
+                                <span class="input-group-text">м²</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="rooms_count_request" class="form-label">Количество комнат *</label>
+                            <input type="number" class="form-control" id="rooms_count_request" 
+                                   name="rooms_count_request" min="1" required 
+                                   value="{{ request[6] }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="funds_request" class="form-label">Бюджет (руб) *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="funds_request" 
+                                   name="funds_request" step="0.01" min="0" required 
+                                   value="{{ request[7] }}">
+                            <span class="input-group-text">₽</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('view_requests') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Отмена
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

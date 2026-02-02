@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль агента{% endblock %}
+{% block header %}Мой профиль{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Информация об агенте</h5>
+            </div>
+            <div class="card-body">
+                {% if agent %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Личная информация</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>ID агента:</th>
+                                <td>{{ agent[0] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Имя:</th>
+                                <td>{{ agent[1] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Фамилия:</th>
+                                <td>{{ agent[2] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Отчество:</th>
+                                <td>{{ agent[3] if agent[3] else '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Опыт работы:</th>
+                                <td>{{ agent[4] if agent[4] else '0' }} лет</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Контактная информация</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Телефон:</th>
+                                <td>{{ agent[5] if agent[5] else '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>{{ agent[6] if agent[6] else '—' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6>Статистика работы</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    {% set completed_deals = namespace(count=0) %}
+                                    {% if deals %}
+                                        {% for deal in deals %}
+                                            {% if deal[4] == 'завершена' %}
+                                                {% set completed_deals.count = completed_deals.count + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <h5 class="card-title">{{ completed_deals.count }}</h5>
+                                    <p class="card-text text-muted">Завершенных сделок</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    {% set active_deals = namespace(count=0) %}
+                                    {% if deals %}
+                                        {% for deal in deals %}
+                                            {% if deal[4] == 'в процессе' %}
+                                                {% set active_deals.count = active_deals.count + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <h5 class="card-title">{{ active_deals.count }}</h5>
+                                    <p class="card-text text-muted">Активных сделок</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ clients_count if clients_count else 0 }}</h5>
+                                    <p class="card-text text-muted">Всего клиентов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    {% set total_amount = namespace(sum=0) %}
+                                    {% if deals %}
+                                        {% for deal in deals %}
+                                            {% set total_amount.sum = total_amount.sum + (deal[3] or 0) %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <h5 class="card-title">{{ "%.1f"|format(total_amount.sum / 1000000) }} млн ₽</h5>
+                                    <p class="card-text text-muted">Объем сделок</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-muted mb-3">
+                        <i class="bi bi-person-x" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5>Информация об агенте не найдена</h5>
+                    <p class="text-muted">Обратитесь к администратору системы</p>
+                </div>
+                {% endif %}
+
+                <!-- КНОПКА РЕДАКТИРОВАНИЯ УБРАНА (агенты могут только просматривать) -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

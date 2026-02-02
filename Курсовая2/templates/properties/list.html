@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Объекты недвижимости{% endblock %}
+{% block header %}Объекты недвижимости{% endblock %}
+
+{% block actions %}
+<a href="{{ url_for('create_property') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>Новый объект
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Фильтры -->
+<div class="card filter-card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Фильтры</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('view_properties') }}" class="row g-3">
+            <div class="col-md-3">
+                <label for="address" class="form-label">Адрес</label>
+                <input type="text" class="form-control" id="address" name="address"
+                       value="{{ filters.address }}" placeholder="Введите адрес">
+            </div>
+
+            <div class="col-md-2">
+                <label for="type" class="form-label">Тип</label>
+                <select class="form-select" id="type" name="type">
+                    <option value="">Все типы</option>
+                    {% for type in property_types %}
+                    <option value="{{ type }}" {% if filters.type == type %}selected{% endif %}>
+                        {{ type }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label for="region" class="form-label">Район</label>
+                <select class="form-select" id="region" name="region">
+                    <option value="">Все районы</option>
+                    {% for region in regions %}
+                    <option value="{{ region }}" {% if filters.region == region %}selected{% endif %}>
+                        {{ region }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label for="rooms" class="form-label">Комнат</label>
+                <select class="form-select" id="rooms" name="rooms">
+                    <option value="">Все</option>
+                    {% for rooms in rooms_options %}
+                    <option value="{{ rooms }}" {% if filters.rooms == rooms|string %}selected{% endif %}>
+                        {{ rooms }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <label for="available" class="form-label">Статус</label>
+                <select class="form-select" id="available" name="available">
+                    <option value="">Все</option>
+                    <option value="available" {% if filters.available == 'available' %}selected{% endif %}>
+                        В продаже
+                    </option>
+                    <option value="sold" {% if filters.available == 'sold' %}selected{% endif %}>
+                        Продано
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Применить
+                </button>
+            </div>
+
+            <!-- Вторая строка фильтров -->
+            <div class="col-md-2">
+                <label for="min_price" class="form-label">Цена от</label>
+                <input type="number" class="form-control" id="min_price" name="min_price"
+                       value="{{ filters.min_price }}" placeholder="0">
+            </div>
+
+            <div class="col-md-2">
+                <label for="max_price" class="form-label">Цена до</label>
+                <input type="number" class="form-control" id="max_price" name="max_price"
+                       value="{{ filters.max_price }}" placeholder="∞">
+            </div>
+
+            <div class="col-md-2">
+                <label for="min_area" class="form-label">Площадь от</label>
+                <input type="number" class="form-control" id="min_area" name="min_area"
+                       value="{{ filters.min_area }}" placeholder="0" step="0.1">
+            </div>
+
+            <div class="col-md-2">
+                <label for="max_area" class="form-label">Площадь до</label>
+                <input type="number" class="form-control" id="max_area" name="max_area"
+                       value="{{ filters.max_area }}" placeholder="∞" step="0.1">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <a href="{{ url_for('view_properties') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle me-1"></i>Сбросить
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица объектов -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Список объектов</h5>
+        <span class="badge bg-primary">{{ properties|length }} объектов</span>
+    </div>
+    <div class="card-body">
+        {% if properties %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="propertiesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Адрес</th>
+                        <th>Тип</th>
+                        <th>Район</th>
+                        <th>Площадь</th>
+                        <th>Комнат</th>
+                        <th>Цена</th>
+                        <th>Этаж</th>
+                        <th>Лифт</th>
+                        <th>Статус</th>
+                        <th>Владелец</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in properties %}
+                    <tr>
+                        <td>{{ prop[0] }}</td>
+                        <td>{{ prop[1] }}</td>
+                        <td>{{ prop[2] }}</td>
+                        <td>{{ prop[6] }}</td>
+                        <td>{{ prop[3] }} м²</td>
+                        <td>{{ prop[4] }}</td>
+                        <td>{{ "{:,.0f}".format(prop[5]) }} ₽</td>
+                        <td>{{ prop[8] }}/{{ prop[9] }}</td>
+                        <td>
+                            {% if prop[7] == 'Да' %}
+                            <span class="badge bg-success">Да</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Нет</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prop[11] %}
+                            <span class="badge bg-success">В продаже</span>
+                            {% else %}
+                            <span class="badge bg-danger">Продано</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ prop[12] }}</td>
+                        <td>
+                            <!-- ИСПРАВЛЕНО: убрана кнопка удаления -->
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('edit_property', property_id=prop[0]) }}"
+                                   class="btn btn-outline-primary" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!-- ФОРМА УДАЛЕНИЯ УБРАНА -->
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <div class="text-muted mb-3">
+                <i class="bi bi-house-x" style="font-size: 3rem;"></i>
+            </div>
+            <h5>Нет объектов недвижимости</h5>
+            <p class="text-muted">Добавьте первый объект</p>
+            <a href="{{ url_for('create_property') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Добавить объект
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        if ($('#propertiesTable').length) {
+            $('#propertiesTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ru.json"
+                },
+                "pageLength": 10,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": [11] }
+                ]
+            });
+        }
+    });
+</script>
+{% endblock %}

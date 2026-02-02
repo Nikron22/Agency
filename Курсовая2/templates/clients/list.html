@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Клиенты{% endblock %}
+{% block header %}Клиенты{% endblock %}
+
+{% block actions %}
+<a href="{{ url_for('create_client') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>Новый клиент
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Фильтры -->
+<div class="card filter-card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Фильтры</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('view_clients') }}" class="row g-3">
+            <div class="col-md-3">
+                <label for="name" class="form-label">Имя клиента</label>
+                <input type="text" class="form-control" id="name" name="name"
+                       value="{{ filters.name }}" placeholder="Введите имя">
+            </div>
+
+            <div class="col-md-2">
+                <label for="type" class="form-label">Тип клиента</label>
+                <select class="form-select" id="type" name="type">
+                    <option value="">Все типы</option>
+                    {% for type in client_types %}
+                    <option value="{{ type }}" {% if filters.type == type %}selected{% endif %}>
+                        {{ type }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="phone" class="form-label">Телефон</label>
+                <input type="text" class="form-control" id="phone" name="phone"
+                       value="{{ filters.phone }}" placeholder="Введите телефон">
+            </div>
+
+            <div class="col-md-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="{{ filters.email }}" placeholder="Введите email">
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+                <div class="btn-group w-100">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel me-1"></i>Фильтр
+                    </button>
+                    <a href="{{ url_for('view_clients') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Сброс
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица клиентов -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Список клиентов</h5>
+        <span class="badge bg-primary">{{ clients|length }} клиентов</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Тип</th>
+                        <th>Телефон</th>
+                        <th>Email</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>{{ client[0] }}</td>
+                        <td>{{ client[1] }}</td>
+                        <td>
+                            {% if client[2] == 'Продавец' %}
+                            <span class="badge bg-success">Продавец</span>
+                            {% elif client[2] == 'Покупатель' %}
+                            <span class="badge bg-primary">Покупатель</span>
+                            {% elif client[2] == 'Арендодатель' %}
+                            <span class="badge bg-warning">Арендодатель</span>
+                            {% elif client[2] == 'Арендатор' %}
+                            <span class="badge bg-info">Арендатор</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ client[2] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ client[3] }}</td>
+                        <td>{{ client[4] }}</td>
+                        <td>
+                            <!-- ИСПРАВЛЕНО: убрана кнопка удаления -->
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('edit_client', client_id=client[0]) }}"
+                                   class="btn btn-outline-primary" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!-- ФОРМА УДАЛЕНИЯ УБРАНА -->
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('.data-table').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ru.json"
+            },
+            "pageLength": 25,
+            "order": [[0, "desc"]],
+            "columnDefs": [
+                { "orderable": false, "targets": [5] }
+            ]
+        });
+    });
+</script>
+{% endblock %}

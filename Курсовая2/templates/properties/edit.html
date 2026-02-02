@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование объекта{% endblock %}
+{% block header %}Редактирование объекта #{{ property[0] }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Редактирование объекта недвижимости</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_property', property_id=property[0]) }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="address_properties" class="form-label">Адрес *</label>
+                            <input type="text" class="form-control" id="address_properties" 
+                                   name="address_properties" required value="{{ property[7] }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="property_type" class="form-label">Тип объекта *</label>
+                            <select class="form-select" id="property_type" name="property_type" required>
+                                <option value="квартира" {% if property[13] == 'квартира' %}selected{% endif %}>Квартира</option>
+                                <option value="дом" {% if property[13] == 'дом' %}selected{% endif %}>Дом</option>
+                                <option value="офис" {% if property[13] == 'офис' %}selected{% endif %}>Офис</option>
+                                <option value="участок" {% if property[13] == 'участок' %}selected{% endif %}>Земельный участок</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="owner_id" class="form-label">Владелец *</label>
+                            <select class="form-select" id="owner_id" name="owner_id" required>
+                                <option value="">Выберите владельца</option>
+                                {% for owner in owners %}
+                                <option value="{{ owner[0] }}" {% if property[12] == owner[0] %}selected{% endif %}>
+                                    {{ owner[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="price_properties" class="form-label">Цена (руб) *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="price_properties" 
+                                       name="price_properties" step="0.01" min="0" required 
+                                       value="{{ property[1] }}">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="area_properties" class="form-label">Площадь (м²) *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="area_properties" 
+                                       name="area_properties" step="0.01" min="0" required 
+                                       value="{{ property[4] }}">
+                                <span class="input-group-text">м²</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="rooms_count_properties" class="form-label">Количество комнат *</label>
+                            <input type="number" class="form-control" id="rooms_count_properties" 
+                                   name="rooms_count_properties" min="0" required 
+                                   value="{{ property[6] }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="region_properties" class="form-label">Район *</label>
+                            <input type="text" class="form-control" id="region_properties" 
+                                   name="region_properties" required value="{{ property[8] }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="floor_properties" class="form-label">Этаж *</label>
+                            <input type="number" class="form-control" id="floor_properties" 
+                                   name="floor_properties" min="0" required value="{{ property[10] }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="total_floors_properties" class="form-label">Всего этажей *</label>
+                            <input type="number" class="form-control" id="total_floors_properties" 
+                                   name="total_floors_properties" min="1" required value="{{ property[11] }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="lift_properties" class="form-label">Лифт *</label>
+                            <select class="form-select" id="lift_properties" name="lift_properties" required>
+                                <option value="да" {% if property[2] == 'да' %}selected{% endif %}>Да</option>
+                                <option value="нет" {% if property[2] == 'нет' %}selected{% endif %}>Нет</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="build_year_properties" class="form-label">Год постройки</label>
+                            <input type="number" class="form-control" id="build_year_properties" 
+                                   name="build_year_properties" min="1800" max="2024" 
+                                   value="{{ property[5] }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="legal_aspects_properties" class="form-label">Юридические аспекты</label>
+                            <input type="text" class="form-control" id="legal_aspects_properties" 
+                                   name="legal_aspects_properties" value="{{ property[9] }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="territory_comfort_properties" class="form-label">Комфорт территории</label>
+                        <textarea class="form-control" id="territory_comfort_properties" 
+                                  name="territory_comfort_properties" rows="2">{{ property[3] }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_available" 
+                                   name="is_available" {% if property[14] %}checked{% endif %}>
+                            <label class="form-check-label" for="is_available">
+                                Объект доступен для продажи/аренды
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('view_properties') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Отмена
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
